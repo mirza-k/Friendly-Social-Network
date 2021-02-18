@@ -1,0 +1,306 @@
+﻿@model GroupChatVM
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    html, body {
+        padding: 0;
+        height: 100%;
+        overflow:hidden;
+    }
+
+    #messages {
+        width: 100%;
+        border: 1px solid #ccc;
+        height: calc(100% - 120px);
+        float: none;
+        margin: 0px auto;
+        padding-left: 0px;
+        padding-bottom:10px;
+        /*overflow-y:scroll;*/
+        overflow-y: scroll;
+    }
+
+    textarea:focus {
+        outline: none !important;
+    }
+
+    .system-message {
+        background: #87CEFA;
+    }
+
+    .broadcast-message {
+        display: inline-block;
+        background: yellow;
+        margin: auto;
+        padding: 5px 10px;
+    }
+
+    .message-entry {
+        overflow: auto;
+        margin: 8px 0;
+    }
+
+    .message-avatar {
+        display: inline-block;
+        padding: 10px;
+        max-width: 8em;
+        word-wrap: break-word;
+    }
+
+    .message-content {
+        display: inline-block;
+        background-color: #b2e281;
+        padding: 10px;
+        margin: 0 0.5em;
+        max-width: calc(60%);
+        word-wrap: break-word;
+    }
+
+        .message-content.pull-left:before {
+            width: 0;
+            height: 0;
+            display: inline-block;
+            float: left;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 10px solid #b2e281;
+            margin: 15px 0;
+        }
+
+        .message-content.pull-right:after {
+            width: 0;
+            height: 0;
+            display: inline-block;
+            float: right;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid #b2e281;
+            margin: 15px 0;
+        }
+
+    .user-message {
+        background-color: rgb(23,162,184);
+        border-radius: 10px 10px;
+        width: auto;
+        color: white;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-top: 1px;
+    }
+
+    .other-message {
+        background-color: dimgrey;
+        border-radius: 10px 10px;
+        width: auto;
+        color: white;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-top: 1px;
+    }
+
+/*    .message-input {
+        border-radius: 30px;
+        height: 35px;
+        flex: 1;
+        padding: 10px;
+        margin: 15px;
+        font-size: 15px;
+    }*/
+
+    message-button {
+        margin: 10px;
+    }
+</style>
+
+@*<h2 class="text-center" style="margin-top: 0; padding-top: 30px; padding-bottom: 30px;">@Model.groupChat.Title</h2>
+    <h3 class="text-center" style="margin-top: 0; padding-top: 30px; padding-bottom: 30px;">Creator: @Model.groupChat.Creator.FirstName</h3>
+    <div class="text-center" style="margin-top: 0; padding-top: 30px; padding-bottom: 30px;">
+        <h5>Participants: </h5>
+        @foreach (ApplicationUserGroupChat obj in Model.Participants)
+        {
+            <p>@obj.User.UserName</p>
+        }
+    </div>*@
+<div class="container w-50" style="height: 85%;">
+    <div class="bg-info" style="width:100%; height:50px">
+        <h5 class="text-left text-white pt-3 pl-2">@Model.groupChat.Title</h5>
+    </div>
+    <div id="messages" style="background-color: whitesmoke;"  class="p-2">
+        @{var counter = 0; }
+        @foreach (Message msg in Model.Messages)
+        {
+            if (msg.SenderId == Model.User.Id)
+            {
+                counter = 0;
+                <div class="d-flex justify-content-end">
+                    <div class="user-message">
+                        <p class="m-0 p-1">@msg.Text</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                counter++;
+                if (counter == 1)
+                {
+                    <div class="d-flex" style="margin-bottom:-2px;">
+                        <img src="data:image/*;base64,@(Convert.ToBase64String(msg.Sender.ProfileImage))" class="rounded-circle border border-dark mt-4 mr-1" style="height: 30px; width: 30px; background-size: cover; background-position: center;">
+                        <div>
+                            <p class="m-0" style="font-size:13px;">@msg.Sender.FirstName</p>
+                            <div class="d-flex justify-content-start">
+                                <div class="other-message">
+                                    <p class="m-0 p-1">@msg.Text</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-start" style="margin-left:35px;">
+                        <div class="other-message">
+                            <p class="m-0 p-1">@msg.Text</p>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
+    <div class="d-flex justify-content-between align-items-center" style="height:60px; width:100%; background-color:whitesmoke;">
+        <input type="text" placeholder="Type a message.." id="inputMessage" class="form-control input-group-sm ml-2 mr-2" />
+        <a href="#" onclick="SendMessage('@(Model.User.FirstName)')" id="sendButton" class="fas fa-paper-plane fa-2x text-info m-2"></a>
+    </div>
+
+
+    @*<div style="width: 100%; border-left-style: ridge; border-right-style: ridge;">
+            <textarea id="message"
+                      style="width: 100%; padding: 5px 10px; border-style: hidden;"
+                      placeholder="Type message and press Enter to send..."></textarea>
+        </div>
+        <div style="overflow: auto; border-style: ridge; border-top-style: hidden;">
+            <button class="btn-success pull-right" onclick="SendMessage('@(Model.User.FirstName)')" id="sendmessage">Send</button>
+        </div>*@
+</div>
+<div class="modal alert alert-danger fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>Connection Error...</div>
+                <div><strong style="font-size: 1.5em;">Hit Refresh/F5</strong> to rejoin. ;)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var connection = new signalR.HubConnectionBuilder().withUrl('/chathub').build();
+
+    connection.start()
+        .then(console.log("uspjesno"))
+        .catch(function () { alert("Neuspjesno") });
+
+    var counter = 0;
+
+    var displayMessageCallback = function (name, message, userId, userImg) {
+        var messagesDiv = document.getElementById("messages");
+
+        var parentDiv = document.createElement("div");
+
+        var pMessage = document.createElement("p");
+        pMessage.innerHTML = message;
+        pMessage.classList.add('m-0', 'p-1');
+
+        if (userId == (@Model.User.Id)) {
+            var childDiv = document.createElement("div");
+            parentDiv.classList.add("d-flex", "justify-content-end");
+            parentDiv.appendChild(childDiv);
+            childDiv.classList.add("user-message");
+            childDiv.appendChild(pMessage);
+            messagesDiv.appendChild(parentDiv);
+            counter = 0;
+        } else {
+            counter++;
+            var pName = document.createElement("p");
+            pName.innerHTML = name;
+            pName.className = "m-0";
+            pName.style.fontSize = "13px";
+
+            parentDiv.className = "d-flex";
+
+            if (counter > 1) {
+
+                var div1 = document.createElement("div");
+                div1.classList.add('d-flex', 'justify-content-start')
+                div1.style.marginLeft = "35px";
+
+                parentDiv.appendChild(div1);
+
+                var div2 = document.createElement("div");
+                div2.className = 'other-message';
+                div1.appendChild(div2);
+
+                div2.appendChild(pMessage);
+                messagesDiv.appendChild(parentDiv);
+
+            } else {
+                var childDiv1 = document.createElement("div");
+
+                var img = document.createElement("img");
+                img.src = "data:image;base64," + userImg;
+                img.classList.add("rounded-circle", "border", "border-dark", "mt-4", "mr-1");
+                img.style.height = "30px";
+                img.style.width = "30px";
+                img.style.backgroundSize = "cover";
+                img.style.backgroundPosition = "center";
+
+                parentDiv.style.marginBottom = "-2px";
+                parentDiv.appendChild(img);
+                parentDiv.appendChild(childDiv1);
+
+                var childDiv2 = document.createElement("div");
+                childDiv2.classList.add('d-flex', 'justify-content-start')
+                childDiv1.appendChild(pName);
+                childDiv1.appendChild(childDiv2);
+
+                var childDiv3 = document.createElement("div");
+                childDiv3.className = 'other-message';
+                childDiv2.appendChild(childDiv3);
+
+                childDiv3.appendChild(pMessage);
+                }
+
+            messagesDiv.appendChild(parentDiv);
+        }
+        console.log("TESTTT");
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    document.getElementById("inputMessage").addEventListener("keypress", function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("sendButton").click();
+        }
+    })
+
+    connection.on("RecieveMessage", displayMessageCallback);
+
+    function SendMessage(username) {
+        var input = document.getElementById("inputMessage");
+        if (input.value != "") {
+            var message = input.value;
+            connection.send("SendMessage", username, message, (@Model.groupChat.Id), (@Model.User.Id));
+            input.value = input.defaultValue;
+        } else {
+            alert("Prazno");
+        }
+    }
+
+    window.onload = function () {
+        var messages = document.getElementById("messages");
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+</script>

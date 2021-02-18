@@ -1,0 +1,157 @@
+﻿@model DisplayHobbyVM
+
+@{
+    ViewData["Title"] = "DisplayHobbies";
+    List<ApplicationUserHobby> hobbies = ViewData["Hobbies"] as List<ApplicationUserHobby>;
+    Layout = null;
+    string ErrorMsg = TempData["ErrorMsg"] as string;
+
+}
+
+<style>
+    .clearfix:before,
+    .clearfix:after {
+        content: "";
+        display: table;
+    }
+
+    *, :after, :before {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .clearfix:after {
+        clear: both;
+    }
+
+    .container-hobby-tags {
+        width: 70%;
+        height: 70px;
+        margin-top: 5px;
+        padding: 5px;
+    }
+
+    .container-inner {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .hobby-tag {
+        float: left;
+        border: 1px solid black;
+        text-align: center;
+        margin: 5px;
+        padding: 8px;
+        border-radius: 3px 4px;
+        font-size: 15px;
+        display: flex;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+    }
+    .passwordTooltip {
+        background-color:red;
+        color: #fff;
+    }
+    .hobby-tag:hover {
+        opacity: 0.9;
+        }
+</style>
+
+<div id="showContent">
+    <div class="w-75 h-100">
+        <hr class="m-1" />
+        <div id="container">
+            @if (Model.Me)
+            {
+                <form id="userHobbyForm" asp-action="AddHobbyToUser" method="post">
+                    <p class="text-primary"><strong>Choose your hobbies! </strong> It will help us to connect you with people with same interests.</p>
+                    <div class="d-flex align-items-center" style="padding:5px" ;>
+                        <div class="w-50 ">
+                            <select id="hobbySelect" class="form-control form-control-sm" style="height:36px;" asp-for="HobbyID" asp-items="@Model.Hobbies">
+                                <option>Select hobby</option>
+                            </select>
+                        </div>
+                        <input type="button" onclick="AddHobbyToUser();" class="btn btn-dark ml-1" value="Add" />
+                    </div>
+                    <div class="container-hobby-tags clearfix">
+                        @if (ErrorMsg != null)
+                        {
+                            <p class="text-danger">@ErrorMsg</p>
+                        }
+                        <div class="container-inner">
+                            @foreach (var hobby in hobbies)
+                            {
+                                <div class="hobby-tag bg-info" data-toggle="tooltip" title="@hobby.Hobby.Description" data-placement="bottom">
+                                    <div class="d-flex">
+                                        <div class="mr-2">
+                                            <span>@hobby.Hobby.Title</span>
+                                        </div>
+                                        <div>
+                                            <a class="fas fa-times text-white" onclick="DeleteHobbyFromUser(@hobby.Hobby.Id)" style="cursor:pointer"></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div>
+                    <div class="container-hobby-tags clearfix">
+                        <div class="container-inner">
+                            @foreach (var hobby in hobbies)
+                            {
+                                <div class="hobby-tag bg-info" onclick="DisplayDescription('test')">
+                                    <div class="d-flex">
+                                        <div class="mr-2">
+                                            <span>@hobby.Hobby.Title</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip({
+            tooltipClass: "passwordTooltip"
+        })
+    });
+
+    function AddHobbyToUser() {
+        var form = $("#userHobbyForm");
+        var url = "/UserProfile/AddHobbyToUser";
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: form.serialize(),
+            success: function (data) {
+                $("#showContent").html(data);
+            }
+        })
+    }
+
+    function DeleteHobbyFromUser(id) {
+        var url = "/UserProfile/DeleteHobbyFromUser/" + id;
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function (data) {
+                $("#showContent").html(data)
+            }
+        })
+    }
+</script>
+
+

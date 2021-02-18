@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4 text-danger">Friendly</h1>
+        <p>Social Platform</p>
+
+        <h4 class="text-secondary">
+            Friendly helps you to easier connect with people that share common
+            <span class="text-danger">
+                hobbies or interests.
+            </span>
+        </h4>
+        <div class="d-flex w-50 mx-auto">
+            <a class="btn btn-primary flex-grow-1 m-1 p-2" asp-action="Login">Log in</a>
+            <a class="btn btn-danger flex-grow-1 m-1 p-2" asp-action="RegisterTest">Create account</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,64 @@
+﻿@model FeedbackVM
+
+@{
+    ViewData["Title"] = "Default";
+}
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><strong>Help Us Improve Friendly</strong></h5>
+                <button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="addFeedbackForm" asp-action="Create" asp-controller="Feedback" method="post">
+                    <h6>How can we improve?</h6>
+                    <select id="areaTagSelect" style="padding:5px; background-color: #e4e4e4;" onchange="DisableFeedbackButton()" class="w-100 form-select" asp-for="areaTagId" asp-items="Model.areaTagList">
+                        <option value="value">Choose an area</option>
+                    </select>
+                    @*<span asp-validation-for="areaTagId"></span>*@
+                    <p style="margin:20px 0px 0px 0px">Details</p>
+                    <textarea oninput="DisableFeedbackButton()" id="detailsTextarea" class="w-100" style="background-color: #e4e4e4;" asp-for="Details"></textarea>
+                    @*<span asp-validation-for="Details"></span>*@
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveChanges" onclick="AddFeedback()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function AddFeedback() {
+        var form = $("#addFeedbackForm");
+        var url = "/Feedback/Create";
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(),
+            success: function (data) {
+                console.log("Spremljeno!");
+                $("body").html(data);
+            }
+        })
+    }
+
+    function DisableFeedbackButton() {
+
+        var getValue = document.getElementById("areaTagSelect").selectedOptions[0].value;
+        var getDetails = document.getElementById("detailsTextarea").value;
+
+        if (getValue === 'value' || getDetails == '')
+            document.getElementById("btnSaveChanges").disabled = true;
+        else
+            document.getElementById("btnSaveChanges").disabled = false;
+
+        console.log(getDetails);
+    }
+
+</script>

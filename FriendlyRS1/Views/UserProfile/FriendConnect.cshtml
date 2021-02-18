@@ -1,0 +1,56 @@
+﻿@model AddFriendVM
+@{
+    Layout = null;
+}
+
+<style>
+    .li-item {
+        cursor: pointer;
+    }
+
+    
+</style>
+
+<form id="connectForm">
+    <input asp-for="UserProfileId" hidden />
+    <input asp-for="LoggedUserId" hidden />
+    <input asp-for="FriendshipId" hidden />
+    <input asp-for="User1Id" hidden />
+    <input asp-for="User2Id" hidden />
+    <input asp-for="ActionUserId" hidden />
+    
+    @if (Model.FriendshipId == 0)
+    {
+        <button type="button" onclick="addFriend(this)" class="btn btn-outline-info" style="width: 13rem" id="connect">
+            Connect 
+            <span class="fas fa-user-plus"></span>
+        </button>
+
+    }
+    else if ((int)(byte)Model.Status == 0)
+    {
+        if (Model.LoggedUserId == Model.ActionUserId)
+        {
+            <button type="button" onclick="Cancel()" class="btn btn-outline-danger" style="width: 13rem" id="cancel">
+                Cancel the request
+                <span class="fas fa-user-times"></span>
+            </button>
+        }
+        else
+        {
+            <button type="button" onclick="Toggle()" id="btnRespond" style="position: relative; width: 13rem" class="btn btn-outline-success">Respond to request  <i class="far fa-edit"></i></button>
+            <ul class="px-0 menu" id="respondRequest" style="position: absolute; z-index: 1; display: none">
+                <li onclick="ConfirmRequest()" class="list-group-item btn-outline-success li-item">Accept    <i class="fas fa-user-check"></i></li>
+                <li onclick="Cancel()" class="list-group-item btn-outline-danger li-item" id="cancel">Decline <i class="fas fa-user-times"></i></li>
+            </ul>
+        }
+
+    }
+    else if ((int)Model.Status== 1)
+    {
+        <button type="button" onclick="Toggle()" id="btnRespond" style="position: relative; width: 13rem" class="btn btn-outline-info">Friends <i class="fas fa-user-check"></i></button>
+        <ul class="px-0 menu" id="respondRequest" style="position: absolute; z-index: 1; display: none ">
+            <li onclick="Cancel()" class="list-group-item btn-outline-danger li-item" style="top:5px">Remove friend <i class="fas fa-user-times"></i></li>
+        </ul>
+    }
+</form>

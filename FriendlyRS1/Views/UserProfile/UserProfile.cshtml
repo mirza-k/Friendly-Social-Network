@@ -1,0 +1,294 @@
+﻿@model FriendlyRS1.ViewModels.UserDetailsVM
+@using System.Security.Claims;
+
+@{
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+<style>
+    html {
+        overflow-y: scroll;
+    }
+
+    .profileImage {
+        cursor: pointer;
+    }
+
+        .profileImage:hover {
+            opacity: 0.8;
+        }
+
+    .container-change-profile-image {
+        position: absolute;
+        left: 600px;
+        top: 200px;
+        background-color: darkslategrey;
+        width: 400px;
+        height: 200px;
+        display: none;
+        border-radius: 10px 10px;
+        transition: all 2s ease;
+    }
+
+    .container-view-profile-picture {
+        position: absolute;
+        left: 520px;
+        top: 150px;
+        display: none;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .custom-file-upload {
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .view-profile-picture {
+        width: 500px;
+        height: 500px;
+    }
+</style>
+
+
+<div class="container">
+    <div class="main-wrapper d-flex flex-column">
+        <div class="d-flex px-5" style="background-color:whitesmoke">
+            <div class="img-section p-3">
+                @* ovdje ce se ucitavati od user slika! *@
+
+                @if (Model.ProfileImage != null)
+                {
+                    <img onclick="ViewProfilePicture()" src="data:image/*;base64,@(Convert.ToBase64String(Model.ProfileImage))" class="rounded-circle border border-dark profileImage" style="height: 200px; width: 200px; background-size: cover; background-position: center;">
+                }
+                else
+                {
+                    <img onclick="ViewProfilePicture()" src="/avatar.png" class="rounded-circle border border-light profileImage" style="height: 168px; width: 168px; background-size: cover; background-position: center;">
+                }
+            </div>
+
+            <div class="podaci p-3" style="line-height:.5em">
+                <h3 class="font-weight-bold">@Model.ToString()</h3>
+                <hr />
+                <p>Student at Faculty of Information Technologies "FIT" - Mostar</p>
+                <hr />
+                <div class="basic-data">
+                    <p>
+                        <small>@Model.GetAge()</small>
+                    </p>
+                    <p>
+                        <i class="fas fa-map-marker-alt text-success"></i>
+                        <small>Kakanj</small>
+                    </p>
+
+                    <div>
+                        <div style="position:relative" id="parent">
+                            @*here goes friendship button*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-info p-3 d-flex flex-column flex-grow-1 align-items-center justify-content-around">
+                <div class="social-links d-flex justify-content-around" style="width:50%">
+                    <i class="fab fa-facebook fa-lg"></i>
+                    <i class="fab fa-twitter fa-lg"></i>
+                    <i class="fab fa-instagram fa-lg"></i>
+                </div>
+                <div>
+                    <a class="text-secondary" href="#"><h4>Contact info</h4></a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+
+                    <a class="nav-item nav-link" onclick="LoadPosts()">Posts</a>
+                    <a class="nav-item nav-link" onclick="ShowAboutMe(@Model.UserId)">About me</a>
+                    <a class="nav-item nav-link" onclick="LoadConnections()">Connections</a>
+                </div>
+            </div>
+        </nav>
+
+        <div id="ShowContent">
+        </div>
+    </div>
+
+    <div class="container-view-profile-picture">
+        <a onclick="HideViewImage()" class="fas fa-times-circle fa-2x text-white" style="position:absolute; left:93%; top:1%; cursor:pointer;"></a>
+        @if (Model.ProfileImage != null)
+        {
+            <img class="view-profile-picture" src="data:image/*;base64,@(Convert.ToBase64String(Model.ProfileImage))" alt="Alternate Text" />
+        }
+        else
+        {
+            <img class="view-profile-picture" src="~/avatar.png" alt="Alternate Text" />
+        }
+    </div>
+
+</div>
+
+<div class="container-change-profile-image p-2">
+    <div id="ChangeProfileImage" class="d-flex justify-content-between align-items-center flex-column rounded w-100 h-100">
+        <div class="w-100 p-2 text-right">
+            <a href="#" onclick="HideBox(false)" class="fas fa-times-circle fa-2x text-info"></a>
+        </div>
+        <div class="mb-2 w-100">
+            <div class="d-flex flex-column justify-content-around p-2" style="width:100%; height:130px;">
+                <input class="btn btn-light pt-2 pb-2" onclick="ViewProfilePicture()" type="button" value="View profile picture" />
+                <form asp-action="AddImage" asp-controller="UserProfile" enctype="multipart/form-data" method="post">
+                    <div class="btn btn-light p-1 pr-2 pl-2">
+                        <label for="file-upload" class="custom-file-upload">
+                            <i class="fa fa-cloud-upload"></i> Change profile picture
+                        </label>
+                        <input id="file-upload" type="file" name="Image" />
+                    </div>
+                    <button type="submit" class="btn btn-info" style="padding:8px 64px 8px 65px ">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $().alert('close')
+
+    // spinning loader (small)
+    var loader = `<div class="d-flex justify-content-center m-1">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                 </div>
+                 </div>`;
+
+    function Toggle() {
+        $("#respondRequest").toggle();
+    }
+
+   window.addEventListener('load', () => {
+       var url = "/UserProfile/FriendConnect/" + @Model.UserId;
+       $("#parent").innerHTML = loader;
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (data) {
+                $("#parent").html(data);
+            }
+        })
+   });
+
+
+    function AjaxPost(form, url) {
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: form.serialize(),
+            success: function (data) {
+                $("#parent").html(data);
+            }
+        })
+    }
+
+    function Toggle() {
+        $("#respondRequest").toggle();
+    }
+
+    function Cancel() {
+        var url = "/UserProfile/CancelRequest";
+        var form = $("#connectForm");
+
+        AjaxPost(form, url);
+    }
+
+    function addFriend(element) {
+        element.innerHTML = loader;
+
+        element.disabled = true;
+        var url = "/UserProfile/AddFriend";
+        var form = $("#connectForm");
+        AjaxPost(form, url);
+    }
+
+    function ConfirmRequest() {
+
+        var url = "/UserProfile/EstablishConnection";
+        var form = $("#connectForm");
+        AjaxPost(form, url);
+    }
+
+    function RespondRequest() {
+        var menu = document.querySelector("#menu");
+        menu.classList.toggle('toggle-display');
+    }
+
+    function ShowAboutMe(id) {
+        let url = '/UserProfile/GetUser/' + id;
+       $("#ShowContent").innerHTML = loader;
+
+        $.get(url, function (d) {
+            $("#ShowContent").html(d);
+        });
+    }
+
+    function LoadPosts() {
+        var content = document.getElementById("ShowContent");
+        content.innerHTML = "Ovdje će biti postovi :)";
+    }
+
+    function LoadConnections() {
+        var content = document.getElementById("ShowContent");
+        content.innerHTML = "Ovdje će biti konekcije :)";
+    }
+
+    // image functionalities
+    function ShowBox() {
+        var img = document.getElementsByClassName("container-change-profile-image")[0];
+        img.style.display = "block";
+        img.zIndex = 0;
+
+        var wrapper = document.querySelector(".main-wrapper");
+        wrapper.style.pointerEvents = "none";
+        wrapper.style.opacity = 0.5;
+        window.addEventListener('scroll', noScroll);
+    }
+
+    function HideBox() {
+        var img = document.getElementsByClassName("container-change-profile-image")[0];
+        img.style.display = "none";
+        var wrapper = document.querySelector(".main-wrapper");
+        wrapper.style.pointerEvents = "all";
+        wrapper.style.opacity = 1;
+        window.removeEventListener('scroll', noScroll);
+    }
+
+    function noScroll() {
+        window.scrollTo(0, 0);
+    }
+
+    function ViewProfilePicture() {
+        HideBox();
+        var element = document.querySelector(".container-view-profile-picture");
+        element.style.display = "block";
+
+        var wrapper = document.querySelector(".main-wrapper");
+        wrapper.style.pointerEvents = "none";
+        wrapper.style.opacity = 0.5;
+        window.addEventListener('scroll', noScroll);
+    }
+
+    function HideViewImage(ShowBox) {
+        var element = document.querySelector(".container-view-profile-picture");
+        element.style.display = "none";
+        if (ShowBox)
+            ShowBox();
+        else {
+            var wrapper = document.querySelector(".main-wrapper");
+            wrapper.style.pointerEvents = "all";
+            wrapper.style.opacity = 1;
+            window.removeEventListener('scroll', noScroll);
+        }
+    }
+
+</script>

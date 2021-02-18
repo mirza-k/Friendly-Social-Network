@@ -1,0 +1,9 @@
+﻿@{
+    string message = TempData["confirmation_msg"] as string;
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <h4>@message</h4>
+    <a asp-action="Login" class="btn btn-info text-white">Go to login</a>
+</div>

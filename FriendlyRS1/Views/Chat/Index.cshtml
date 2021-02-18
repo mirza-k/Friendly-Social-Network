@@ -1,0 +1,10 @@
+﻿@model List<GroupChat>
+
+<div>
+    @foreach (GroupChat chat in Model)
+    {
+        <div>
+            <a asp-action="Get" asp-controller="Chat" asp-route-id="@chat.Id">@chat.Title</a>
+        </div>
+    }
+</div>

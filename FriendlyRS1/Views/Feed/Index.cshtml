@@ -1,0 +1,74 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+    string feedbackError = TempData["feedbackError"] as string;
+}
+
+
+<div class="d-flex">
+    <aside class="alert alert-primary flex-grow-2 p-5">
+        <h5>People you may know</h5>
+        <hr />
+        <div id="Suggest"></div>
+        <hr />
+    </aside>
+    <div class="main-feed  flex-grow-1">
+        <div class="container">
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <strong>Welcome to friendly!</strong> You should check in on some of those fields below.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (feedbackError == "success")
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                        <strong style="margin-left:10px">Feedback submitted</strong>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+            @if (feedbackError != null && feedbackError != "success")
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>WARNING!</strong> @feedbackError
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+    <aside class="alert alert-primary  flex-grow-2">
+        <div>Sponosored pages</div>
+    </aside>
+</div>
+
+<script>
+    var loader = `<div class="d-flex justify-content-center">
+                  <div class="spinner-border" role="status">
+                  <span class="sr-only">Loading...</span>
+                 </div>
+                 </div>`;
+
+    function friendSuggestions() {
+        $("#Suggest").html(loader);
+
+        var url = '/Feed/FriendSuggestion/';
+        $.get(url, function (d) {
+            $("#Suggest").html(d);
+        });
+    }
+
+    window.addEventListener('load', () => {
+        friendSuggestions();
+    });
+
+    $().alert('close')
+
+
+</script>
